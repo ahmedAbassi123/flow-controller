@@ -11,12 +11,12 @@ class CustomPDFExtractionError(Exception):
      def __init__(self, detail="Error occurred during PDF extraction: "):
         self.detail = detail
         super().__init__(self.detail)
-        
 
-class CustomOCRProcessingError(Exception):
-     def __init__(self, detail="Error occurred during OCR processing: "):
+class NotAPDFError(CustomPDFExtractionError):
+    def __init__(self, detail="File is not a PDF"):
         self.detail = detail
         super().__init__(self.detail)
+
     
 
 

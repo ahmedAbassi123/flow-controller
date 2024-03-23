@@ -1,30 +1,30 @@
 from src.schemas.files import PDFFile
 import fitz
-import pytesseract
-from PIL import Image
-from src.exceptions.custom_exceptions import PDFProcessingError
-from src.schemas.files import PDFStatus
+from src.exceptions.custom_exceptions import PDFProcessingError,NotAPDFError
+from src.schemas.files import PDFType
+from src.utils.abstract_classes import Flow
+from src.utils.functions import open_pdf
 
 
-class FlowService:
+class FlowService(Flow):
     def __init__(self, pdf_contents: bytes):
         self.pdf_contents=pdf_contents
 
     def is_scanned_pdf(self)->bool:
         try:
-            doc = fitz.open(stream=self.pdf_contents,filetype="pdf")
-            total_pages = doc.page_count
-            num_blank_pages = 0
-            for page_num in range(total_pages):
-                page = doc.load_page(page_num)
-                text = page.get_text()
-                if not text.strip():
-                    num_blank_pages += 1
-            doc.close()
-            if num_blank_pages / total_pages > 0.5:
-                return True  # More than half of the pages are blank (scanned)
-            else:
-                return False
+            with open_pdf(self.pdf_contents) as doc:
+                total_pages = doc.page_count
+                num_blank_pages = 0
+                for page_num in range(total_pages):
+                    page = doc.load_page(page_num)
+                    text = page.get_text()
+                    if not text.strip():
+                        num_blank_pages += 1
+                
+                if num_blank_pages / total_pages > 0.5:
+                    return True  # More than half of the pages are blank (scanned)
+                else:
+                    return False
             
         except PermissionError:
             raise PDFProcessingError("Permission denied. Make sure you have the necessary permissions to access the file.")

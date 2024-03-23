@@ -1,27 +1,36 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
-from src.services.flow_controller_service import FlowService
-from src.exceptions.custom_exceptions import PDFProcessingError
-from src.schemas.files import PDFStatus
+from src.injections.dependency import pdf_service_factory
+from src.exceptions.custom_exceptions import PDFProcessingError, NotAPDFError
+from src.schemas.files import PDFType
 import logging
-import io
 
-router = APIRouter()
+flow_router = APIRouter()
 
 logging.basicConfig(level=logging.DEBUG)  
 
-@router.post('/files/flow/{document_id}', status_code=200)
-async def analyze_pdf(document_id: int, pdf_file: UploadFile = File(...)):
+@flow_router.post('/files/flow/{user_id}', status_code=200)
+async def analyze_pdf(user_id: int, pdf_file: UploadFile = File(...)):
     try:
-        contents = await pdf_file.read() 
-        flow_service = FlowService(contents)
+        pdf_checker = pdf_service_factory.create_pdf_checker(pdf_file.filename)
+        if not pdf_checker:
+            raise NotAPDFError("File is not a PDF")
         
-        if not flow_service.is_scanned_pdf():
-            return PDFStatus(status="The PDF is not scanned")
+        contents = await pdf_file.read() 
+        
+        pdf_type = pdf_service_factory.create_pdf_flow(contents)
+        if not pdf_type.is_scanned_pdf():
+            return PDFType(Type="NOT_SCANNED")
         else: 
-            return PDFStatus(status="The PDF is scanned")
+            return PDFType(Type="SCANNED")
             
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except PDFProcessingError as e:
+        raise HTTPException(status_code=status.HTTP_102_PROCESSING, detail=str(e))
+    
+    except NotAPDFError as e:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
+
+
+
     
 
 

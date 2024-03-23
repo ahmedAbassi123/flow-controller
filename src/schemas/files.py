@@ -1,8 +1,12 @@
 from pydantic import BaseModel
+from enum import Enum
+from src.utils.validation import PDFTypeEnum
 
 class PDFFile(BaseModel):
     file: bytes
 
 
-class PDFStatus(BaseModel):
-    status:str
+
+
+class PDFType(BaseModel):
+    Type: PDFTypeEnum
