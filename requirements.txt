@@ -1,8 +1,7 @@
-fastapi==0.110.0
-uvicorn==0.29.0
-PyPDF2==3.0.1
-pymupdf==1.23.26
-pytesseract==0.3.10
-img2table==1.2.11
-pandas==2.2.1
+fastapi~=0.110.0
+uvicorn~=0.29.0
+PyPDF2~=3.0.1
+pymupdf~=1.23.26
+pandas~=2.2.1
 pydantic-settings~=2.2.1
+python-multipart~=0.0.9

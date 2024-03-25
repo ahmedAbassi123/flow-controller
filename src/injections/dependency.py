@@ -1,25 +1,23 @@
-from src.services.flow_controller_service import FlowService
+from src.services.flow_controller_service import flow_service,FlowService
 from src.exceptions.custom_exceptions import NotAPDFError
-from src.utils.abstract_classes import Check
+from src.utils.functions import is_pdf
 
-class check_file_type(Check):
-    def __init__(self, filename: str):
-        self.filename=filename
-    
-    def is_pdf(self)->bool:
-        if not self.filename.lower().endswith('.pdf'):
-            raise NotAPDFError()
-        return True
 
 
 class PdfServiceFactory:
+    def __init__(self):
+        pass
+
     @staticmethod
-    def create_pdf_flow(contents: bytes):
-        return FlowService(contents)
+    def create_pdf_flow()-> FlowService:
+        return flow_service
     
     @staticmethod
-    def create_pdf_checker(filename: str):
-        return check_file_type(filename) 
+    def is_pdf(filename:str)->bool:
+        if not filename.lower().endswith('.pdf'):
+            return False
+        return True
+
 
 
 pdf_service_factory = PdfServiceFactory()
