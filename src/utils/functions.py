@@ -9,7 +9,4 @@ def open_pdf(pdf_contents: bytes):
     finally:
         doc.close()
 
-def is_pdf(filename:str)->bool:
-    if not filename.lower().endswith('.pdf'):
-        return False
-    return True
+
